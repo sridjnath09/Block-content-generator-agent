@@ -28,14 +28,16 @@ class BlogNode:
         """
         content generation for the blog
         """
-        prompt= """You are expert blog writer. Use Markdown formatting.
-            Generate a detailed blog content with detailed breakdown for the {topic} . Write only the final blog article in markdown.
-        Do not include reasoning, analysis, or <think> blocks.
-        Topic: {topic}     """
-        system_message=prompt.format(topic=state["topic"])
-        response=self.llm.invoke(system_message)
 
-        return {'blog':{'title':state['blog']['title'],'content':response.content}}
+        if "topic" in state and state["topic"]:
+            prompt= """You are expert blog writer. Use Markdown formatting.
+                Generate a detailed blog content with detailed breakdown for the {topic} . Write only the final blog article in markdown.
+            Do not include reasoning, analysis, or <think> blocks.
+            Topic: {topic}     """
+            system_message=prompt.format(topic=state["topic"])
+            response=self.llm.invoke(system_message)
+
+            return {'blog':{'title':state['blog']['title'],'content':response.content}}
 
 
     def translate(self,state:BlogState):
@@ -56,6 +58,8 @@ class BlogNode:
         ]
 
         translation_content=self.llm.with_structured_output(Blog).invoke(message)
+
+        return {"blog":{"content":translation_content}}
 
     def route(self,state:BlogState):
         return {"current_language":state["current_language"]}    
